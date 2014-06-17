@@ -1,0 +1,168 @@
+\documentclass[compress,aspectratio=43]{beamer}
+
+\usepackage[english]{babel}
+\usepackage[english]{isodate}
+\isodate
+
+\usepackage{minted}
+
+\usetheme{vertex}
+
+\linespread{1.1}
+
+\title{C++11}
+\subtitle{Writing modern scientific software}
+\date{\today}
+\author{Igor Babuschkin\\ Jens Winkelmann}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Complementary exercises}
+  Can be found at \\
+  \begin{center}
+  \url{github.com/ibab/cpp11-talk}
+  \end{center}
+  in the \texttt{exercises} directory.
+\end{frame}
+
+\begin{frame}{Why C++11?}
+  Can make your code
+  \begin{itemize}
+    \item Simpler
+    \item Shorter
+    \item Safer
+    \item Faster
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{auto}
+  Let the compiler infer the type of a variable
+  \begin{minted}[linenos]{cpp}
+std::vector<std::vector<double>>::iterator it
+  = data.begin();
+// VS
+auto it = data.begin();
+  \end{minted}
+  Useful to keep your code readable when templates are involved.
+\end{frame}
+
+\begin{frame}[fragile]{auto (cont.)}
+  Doesn't always make sense:
+  \begin{minted}[linenos]{cpp}
+double x = 1;
+auto   y = 1;
+  \end{minted}
+  Question: What is the value of this expression?
+  \begin{minted}[linenos]{cpp}
+y / 2;
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Lambda expressions}
+  Quickly define functions as if they were values and pass them around:
+  \begin{minted}[linenos]{cpp}
+func = [](double x) { return 42 * x; };
+dosomething(func);
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Lambda expressions (cont.)}
+  Very useful: Injecting variables into the scope of your function.
+  \begin{minted}[linenos]{cpp}
+for (int q = 1; q < 10; q++) {
+  newfunc = [q](double x) {
+    return pow(x, q);
+  }
+  dosomething(newfunc);
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Lambda expressions (cont.)}
+  Lambda functions have the type \texttt{std::function} (\texttt{\#include<functional>})\\
+  You will need this when taking/returning a lambda function from a regular function.
+  \begin{minted}[linenos]{cpp}
+void dosomething(std::function<double(double)>);
+  \end{minted}
+\end{frame} 
+
+\begin{frame}{std containers}
+  More emphasis is placed on std containers
+  \begin{itemize}
+    \item vector: extensible array
+    \item set: unordered container with fast lookup
+    \item map: extensible key/value store with fast lookup
+    \item tuple: fixed size collection of different objects
+  \end{itemize}
+  Should be preferred to simple data types (like arrays) for their convenience and safety with little to no performance loss.
+\end{frame}
+
+\begin{frame}{Smart pointers}
+  Pointers are the source of many bugs, but can't be avoided completely.
+  C++11 introduces wrappers that help managing them when they are really necessary:
+  \begin{itemize}
+    \item Interfacing with pointer-based code
+    \item Polymorphism
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Smart pointers (cont.)}
+  \begin{minted}{cpp}
+std::unique_ptr<TestObject> obj(new TestObject());
+  \end{minted}
+  \begin{itemize}
+    \item Use \texttt{*obj} and \text{obj->bla()} as usual.
+    \item A function takes a pointer and takes over ownership? $\rightarrow$ use \texttt{obj.release()}
+    \item It does not take ownership? $\rightarrow$ \texttt{obj.get()}
+  \end{itemize}
+  If you copy one \texttt{unique\_ptr} into another, the original one loses his reference. \\
+  The underlying object is deleted if \texttt{unique\_ptr} goes out of scope. \\
+  $\Rightarrow$ No memory leaks if used correctly!
+\end{frame}
+
+\begin{frame}{Smart pointers (cont.)}
+  Also new: \texttt{shared\_ptr}. \\
+  Solves the problem of how to manage many pointers pointing to a single object.
+
+  A reference count is maintained and the object is deleted when it reaches 0.
+\end{frame}
+
+\begin{frame}[fragile]{foreach loops}
+  Every object that implements \texttt{begin()} and \texttt{end()} can be iterated over with foreach syntax:
+  \begin{minted}[linenos]{cpp}
+std::vector<double> data = {1.0, 1.2, 1.4};
+for(auto &x: data) {
+  std::cout << x << std::endl;
+}
+  \end{minted}
+  Compare this to
+  \begin{minted}[linenos]{cpp}
+for(std::vector<double>::iterator it=data.begin();
+      it!=data.end(); it++) {
+  std::cout << *it << std::endl;
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Random number generators}
+  Very useful interface for sampling from discrete or continuous distributions.\\
+  Prepare random generator
+  \begin{minted}{cpp}
+std::random_device rd;
+std::mt19937 rand(rd());
+  \end{minted}
+  Prepare distribution
+  \begin{minted}{cpp}
+std::normal_distribution dist(0.0, 1.0);
+  \end{minted}
+  Generate values
+  \begin{minted}{cpp}
+dist(rand);
+  \end{minted}
+\end{frame}
+
+
+\end{document}
+
