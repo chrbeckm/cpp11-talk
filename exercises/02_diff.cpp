@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     auto func = [](double x) { return cos(2 * x); };
-    std::cout << "Derivatife of func at pi: "
+    std::cout << "Derivative of func at pi: "
               << diff(func, M_PI) << std::endl;
     return 0;
 }
